@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Status - Student Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .status-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stat-box.sent {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .stat-box.sent .stat-number {
+            color: #10b981;
+        }
+
+        .stat-box.failed {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .stat-box.failed .stat-number {
+            color: #ef4444;
+        }
+
+        .stat-box.disabled {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .stat-box.disabled .stat-number {
+            color: #f59e0b;
+        }
+
+        .messages {
+            margin-bottom: 30px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-out backwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message:nth-child(1) { animation-delay: 0.1s; }
+        .message:nth-child(2) { animation-delay: 0.2s; }
+        .message:nth-child(3) { animation-delay: 0.3s; }
+        .message:nth-child(4) { animation-delay: 0.4s; }
+        .message:nth-child(5) { animation-delay: 0.5s; }
+
+        .message-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .message-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message-info {
+            background: #dbeafe;
+            color: #0c2d6b;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        a, button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .success-message {
+            text-align: center;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #856404;
+        }
+
+        .message-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .message-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .message-list::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+
+        .message-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="status-header">
+                {% if results.disabled > 0 %}
+                    <div class="status-icon">⚙️</div>
+                    <h1>Email Configuration Required</h1>
+                {% elif results.failed > 0 %}
+                    <div class="status-icon">⚠️</div>
+                    <h1>Emails Sent with Issues</h1>
+                {% else %}
+                    <div class="status-icon">✅</div>
+                    <h1>Success!</h1>
+                {% endif %}
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box sent">
+                    <div class="stat-number">{{ results.sent }}</div>
+                    <div class="stat-label">Sent Successfully</div>
+                </div>
+                <div class="stat-box failed">
+                    <div class="stat-number">{{ results.failed }}</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-box disabled">
+                    <div class="stat-number">{{ results.disabled }}</div>
+                    <div class="stat-label">Disabled</div>
+                </div>
+            </div>
+
+            {% if results.disabled > 0 %}
+            <div class="warning-box">
+                📧 Email notifications are currently disabled. To enable sending emails:
+                <ol style="margin-top: 10px; margin-left: 20px;">
+                    <li>Open <code>app.py</code></li>
+                    <li>Go to EMAIL_CONFIG section (around line 14)</li>
+                    <li>Add your Gmail address and 16-character app password</li>
+                    <li>Set <code>'enabled': True</code></li>
+                    <li>Restart the Flask server</li>
+                </ol>
+            </div>
+            {% endif %}
+
+            {% if results.messages %}
+            <div class="messages">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📋 Details</h3>
+                <div class="message-list">
+                    {% for message in results.messages %}
+                        {% if '✓' in message %}
+                            <div class="message message-success">{{ message }}</div>
+                        {% elif '✗' in message %}
+                            <div class="message message-error">{{ message }}</div>
+                        {% else %}
+                            <div class="message message-info">ℹ️ {{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="button-group">
+                <a href="/dashboard" class="btn-secondary">← Back to Dashboard</a>
+                <a href="/send_alerts" class="btn-primary">📧 Send More Alerts</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

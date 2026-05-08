@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Parent Alerts - Student Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideIn 0.6s ease-out;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .student-list {
+            margin-bottom: 30px;
+        }
+
+        .student-item {
+            background: #f8f9ff;
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .student-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-email {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .student-risk {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .select-all {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .select-all input {
+            cursor: pointer;
+        }
+
+        .select-all label {
+            cursor: pointer;
+            flex: 1;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #667eea;
+        }
+
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .count-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #856404;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Send Parent Alerts</h1>
+            <p>Notify parents of high-risk students about performance</p>
+        </header>
+
+        <div class="card">
+            {% if high_risk_students %}
+                <h2>Select Recipients</h2>
+                
+                {% if not EMAIL_CONFIG.enabled %}
+                <div class="warning">
+                    ⚠️ Email notifications are currently disabled. Please configure your Gmail credentials in settings to enable this feature.
+                </div>
+                {% endif %}
+
+                <div class="info-box">
+                    📧 Select the parents you want to send performance alerts to. Each parent will receive a detailed report of their child's academic performance.
+                </div>
+
+                <form method="POST">
+                    <div class="select-all">
+                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                        <label for="selectAll">Select All Recipients</label>
+                        <span class="count-badge" id="selectedCount">0</span>
+                    </div>
+
+                    <div class="student-list">
+                        {% for student in high_risk_students %}
+                        <div class="student-item">
+                            <input type="checkbox" class="checkbox student-checkbox" name="email_recipients" value="{{ student.email }}" onchange="updateCount()">
+                            <div class="student-info">
+                                <div class="student-email">{{ student.email }}</div>
+                                <span class="student-risk">{{ student.risk }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="button-group">
+                        <a href="/dashboard" class="btn-back" style="text-decoration: none; text-align: center;">← Back</a>
+                        <button type="submit" class="btn-send" id="sendBtn" onclick="return confirmSend()">🚀 Send Alerts</button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">🎉</div>
+                    <h2 style="color: #667eea;">No High-Risk Students</h2>
+                    <p>All students are performing well! No alerts need to be sent.</p>
+                    <a href="/dashboard" style="display: inline-block; margin-top: 20px; color: #667eea; text-decoration: none; font-weight: 600;">← Back to Dashboard</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateCount();
+        }
+
+        function updateCount() {
+            const selected = document.querySelectorAll('.student-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = selected;
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = selected === 0;
+        }
+
+        function confirmSend() {
+            const selected = document.querySelectorAll('.student-checkbox:checked').length;
+            if (selected === 0) {
+                alert('Please select at least one recipient');
+                return false;
+            }
+            return confirm(`Send performance alerts to ${selected} parent(s)?`);
+        }
+
+        // Initialize count on page load
+        updateCount();
+    </script>
+</body>
+</html>

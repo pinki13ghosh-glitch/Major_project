@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Records - Student Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        header a {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9ff;
+            transform: scale(1.01);
+        }
+
+        tbody tr:hover td {
+            color: #667eea;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafbfe;
+        }
+
+        tbody tr:nth-child(even):hover {
+            background: #f0f4ff;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-low-risk {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-medium-risk {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-high-risk {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .score {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .email-cell {
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .no-data h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            animation: slideUp 0.6s ease-out backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .stat-card-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-card-label {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>📊 Student Records</h2>
+            <a href='/dashboard'>← Back to Dashboard</a>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-card-icon">👥</div>
+                <div class="stat-card-number">{{ data|length }}</div>
+                <div class="stat-card-label">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">✅</div>
+                <div class="stat-card-number" id="low-count">0</div>
+                <div class="stat-card-label">Low Risk</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">⚠️</div>
+                <div class="stat-card-number" id="high-count">0</div>
+                <div class="stat-card-label">High Risk</div>
+            </div>
+        </div>
+
+        {% if data %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Parent Email</th>
+                        <th>Attendance</th>
+                        <th>Assignment</th>
+                        <th>Study Hours</th>
+                        <th>Mid Marks</th>
+                        <th>Prediction</th>
+                        <th>Probability</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td><strong>{{ row[0] }}</strong></td>
+                        <td class="email-cell">{{ row[1] }}</td>
+                        <td><span class="score">{{ "%.1f"|format(row[2]) }}%</span></td>
+                        <td><span class="score">{{ "%.1f"|format(row[3]) }}</span></td>
+                        <td><span class="score">{{ "%.1f"|format(row[4]) }}h</span></td>
+                        <td><span class="score">{{ "%.1f"|format(row[5]) }}</span></td>
+                        <td>{{ row[6] }}</td>
+                        <td><span class="score">{{ row[7] }}%</span></td>
+                        <td>
+                            {% if row[8] == 'Low Risk' %}
+                                <span class="status-badge status-low-risk">{{ row[8] }}</span>
+                            {% elif row[8] == 'Medium Risk' %}
+                                <span class="status-badge status-medium-risk">{{ row[8] }}</span>
+                            {% else %}
+                                <span class="status-badge status-high-risk">{{ row[8] }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>📈 Total Records: {{ data|length }} | Last Updated: {{ now }}</p>
+        </div>
+        {% else %}
+        <div class="table-wrapper">
+            <div class="no-data">
+                <div class="no-data-icon">📭</div>
+                <h3>No Student Records Found</h3>
+                <p>Add student data to get started with performance predictions</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Calculate statistics
+        const data = {{ data|tojson }};
+        let lowRiskCount = 0, highRiskCount = 0;
+        
+        data.forEach(row => {
+            if (row[8] === 'Low Risk') lowRiskCount++;
+            else if (row[8] === 'High Risk') highRiskCount++;
+        });
+        
+        document.getElementById('low-count').textContent = lowRiskCount;
+        document.getElementById('high-count').textContent = highRiskCount;
+    </script>
+</body>
+</html>

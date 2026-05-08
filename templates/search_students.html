@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search & Filter Students - Student Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 28px;
+            animation: slideIn 0.6s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        header a {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-section h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+
+        form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: #f8f9ff;
+        }
+
+        .btn-search {
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-end;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-info {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .results-section {
+            margin-bottom: 40px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-header h2 {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .result-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            animation: fadeIn 0.5s ease-out backwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .student-card:nth-child(1) { animation-delay: 0.1s; }
+        .student-card:nth-child(2) { animation-delay: 0.2s; }
+        .student-card:nth-child(3) { animation-delay: 0.3s; }
+        .student-card:nth-child(4) { animation-delay: 0.4s; }
+        .student-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .student-email {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .student-id {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .risk-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .risk-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .risk-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .metric-label {
+            color: #999;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .status-indicator {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .recommendations {
+            background: #fff8f0;
+            border: 2px solid #ffe0cc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .recommendations h3 {
+            color: #d97706;
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recommendation-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #d97706;
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .recommendation-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .rec-icon {
+            font-size: 18px;
+            weight: bold;
+            min-width: 24px;
+        }
+
+        .rec-content {
+            flex: 1;
+        }
+
+        .rec-type {
+            font-weight: 600;
+            color: #d97706;
+            margin-bottom: 3px;
+        }
+
+        .rec-message {
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .rec-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .rec-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-stat-label {
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .rec-stat-value {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .prediction-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .prediction-pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .prediction-fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <div class="header-icon">🔍</div>
+                Search & Filter Students
+            </h1>
+            <a href='/dashboard'>← Back to Dashboard</a>
+        </header>
+
+        <div class="search-section">
+            <h2>
+                <div class="section-icon">🔎</div>
+                Find Students
+            </h2>
+            
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search_query">Search by Email or Marks</label>
+                        <input 
+                            type="text" 
+                            id="search_query" 
+                            name="search_query" 
+                            placeholder="e.g., student@email.com or 85"
+                            value="{{ search_query }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter_type">Filter Type</label>
+                        <select id="filter_type" name="filter_type">
+                            <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Students</option>
+                            <option value="low_attendance" {% if filter_type == 'low_attendance' %}selected{% endif %}>Low Attendance (< 60%)</option>
+                            <option value="low_study" {% if filter_type == 'low_study' %}selected{% endif %}>Low Study Hours (< 2h/week)</option>
+                            <option value="low_marks" {% if filter_type == 'low_marks' %}selected{% endif %}>Low Mid Marks (< 50)</option>
+                            <option value="high_marks" {% if filter_type == 'high_marks' %}selected{% endif %}>High Mid Marks (>= 75)</option>
+                            <option value="high_attendance" {% if filter_type == 'high_attendance' %}selected{% endif %}>High Attendance (>= 80%)</option>
+                            <option value="high_risk" {% if filter_type == 'high_risk' %}selected{% endif %}>High Risk Students</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-info">
+                    ℹ️ Search by email address, attendance %, assignment score, study hours, or mid marks. Use filters to quickly identify students who need support.
+                </div>
+
+                <button type="submit" class="btn-search">🔎 Search</button>
+            </form>
+        </div>
+
+        {% if results %}
+        <div class="results-section">
+            <div class="results-header">
+                <h2>📊 Search Results</h2>
+                <span class="result-count">{{ results|length }} Student(s) Found</span>
+            </div>
+
+            {% for student in results %}
+            <div class="student-card">
+                <div class="student-header">
+                    <div>
+                        <div class="student-email">{{ student.name }}</div>
+                        <div class="student-id">Student ID: {{ student.id }}</div>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        {% if student.risk == 'Low Risk' %}
+                            <span class="risk-badge risk-low">{{ student.risk }}</span>
+                        {% elif student.risk == 'Medium Risk' %}
+                            <span class="risk-badge risk-medium">{{ student.risk }}</span>
+                        {% else %}
+                            <span class="risk-badge risk-high">{{ student.risk }}</span>
+                        {% endif %}
+                        
+                        {% if student.prediction == 'PASS' %}
+                            <span class="prediction-badge prediction-pass">✓ {{ student.prediction }}</span>
+                        {% else %}
+                            <span class="prediction-badge prediction-fail">✗ {{ student.prediction }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">📅 Attendance</div>
+                        <div class="metric-value">{{ student.attendance }}%</div>
+                        <div class="status-indicator">
+                            {% if student.attendance < 60 %}
+                                🔴 Below Target
+                            {% elif student.attendance < 80 %}
+                                🟡 Fair
+                            {% else %}
+                                🟢 Good
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">📋 Assignment</div>
+                        <div class="metric-value">{{ student.assignment }}/100</div>
+                        <div class="status-indicator">
+                            {% if student.assignment >= 80 %}
+                                🟢 Excellent
+                            {% elif student.assignment >= 60 %}
+                                🟡 Good
+                            {% else %}
+                                🔴 Needs Work
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">⏰ Study Hours</div>
+                        <div class="metric-value">{{ student.study_hours }}h</div>
+                        <div class="status-indicator">
+                            {% if student.study_hours < 2 %}
+                                🔴 Low
+                            {% elif student.study_hours < 5 %}
+                                🟡 Fair
+                            {% else %}
+                                🟢 Adequate
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-label">🎓 Mid Marks</div>
+                        <div class="metric-value">{{ student.mid_marks }}/100</div>
+                        <div class="status-indicator">
+                            {% if student.mid_marks < 50 %}
+                                🔴 Weak
+                            {% elif student.mid_marks < 75 %}
+                                🟡 Fair
+                            {% else %}
+                                🟢 Strong
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #555; margin-bottom: 15px;">
+                    📈 <strong>Pass Probability:</strong> <span style="color: #667eea; font-weight: 600;">{{ student.probability }}%</span>
+                </div>
+
+                {% if student.recommendations|length > 0 %}
+                <div class="recommendations">
+                    <h3>⚠️ Recommended Actions</h3>
+                    {% for rec in student.recommendations %}
+                    <div class="recommendation-item">
+                        <div class="rec-icon">{{ rec.icon }}</div>
+                        <div class="rec-content">
+                            <div class="rec-type">{{ rec.type }}</div>
+                            <div class="rec-message">{{ rec.message }}</div>
+                            <div class="rec-stats">
+                                <div class="rec-stat">
+                                    <span class="rec-stat-label">Current</span>
+                                    <span class="rec-stat-value">{{ rec.current }}</span>
+                                </div>
+                                <div class="rec-stat">
+                                    <span class="rec-stat-label">Target</span>
+                                    <span class="rec-stat-value">{{ rec.target }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px; border-radius: 8px; color: #065f46; font-size: 13px;">
+                    ✅ Great job! This student is meeting all performance targets.
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            {% if search_query or filter_type != 'all' %}
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>No Results Found</h3>
+                <p>Try adjusting your search criteria or filters.</p>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>Start Searching</h3>
+                <p>Enter search terms or select a filter above to find students.</p>
+            </div>
+            {% endif %}
+        {% endif %}    </div>
+</body>
+</html>

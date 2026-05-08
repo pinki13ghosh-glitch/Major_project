@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Student Performance</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            animation: slideIn 0.6s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        header a {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(5) { animation-delay: 0.5s; }
+        .stat-card:nth-child(6) { animation-delay: 0.6s; }
+        .stat-card:nth-child(7) { animation-delay: 0.7s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        .chart-container h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .chart-icon {
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .low-performers {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out 0.4s backwards;
+        }
+
+        .low-performers h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .performers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .performer-card {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe0e6 100%);
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .performer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .performer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .performer-id {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .performer-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .stat-item-label {
+            color: #666;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        .stat-item-value {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .performer-probability {
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .prob-label {
+            color: #666;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .prob-value {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            border-radius: 3px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .average-metrics {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out 0.5s backwards;
+        }
+
+        .average-metrics h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <div class="header-icon">📊</div>
+                Analytics & Predictions
+            </h1>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href='/dashboard'>← Back to Dashboard</a>
+                <form method="post" action="/send_alerts" style="margin: 0;">
+                    <button type="submit" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 12px 25px; border-radius: 10px; border: none; font-weight: 600; transition: all 0.3s ease; cursor: pointer;">📧 Send Alerts</button>
+                </form>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number">{{ total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">{{ low_risk }}</div>
+                <div class="stat-label">Low Risk</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-number">{{ medium_risk }}</div>
+                <div class="stat-label">Medium Risk</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-number">{{ high_risk }}</div>
+                <div class="stat-label">High Risk</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-number">{{ pass_count }}</div>
+                <div class="stat-label">Pass Predictions</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📉</div>
+                <div class="stat-number">{{ fail_count }}</div>
+                <div class="stat-label">Fail Predictions</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-number">{{ accuracy }}%</div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+        </div>
+
+                    <div class="chart-icon">🔵</div>
+                    Risk Distribution
+                </h2>
+                <div class="chart-wrapper">
+                    <canvas id="riskChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>
+                    <div class="chart-icon">📊</div>
+                    Pass vs Fail Distribution
+                </h2>
+                <div class="chart-wrapper">
+                    <canvas id="passFailChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>📈 Attendance Trend</h2>
+                <div class="chart-wrapper">
+                    <canvas id="attendanceChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>
+                    <div class="chart-icon">📋</div>
+                    Confusion Matrix
+                </h2>
+                <div class="chart-wrapper">
+                    <canvas id="confusionMatrixChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="average-metrics">
+            <h2>📈 Class Average Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric">
+                    <div class="metric-label">Avg Attendance</div>
+                    <div class="metric-value">{{ avg_attendance }}%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Avg Assignment</div>
+                    <div class="metric-value">{{ avg_assignment }}</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Avg Study Hours</div>
+                    <div class="metric-value">{{ avg_study_hours }}h</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Avg Mid Marks</div>
+                
+                <div class="chart-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">⚠️</div>
+                Lowest Performing Students (High Risk)
+            marks }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="low-performers">
+            <h2>⚠️ Lowest Performing Students (High Risk)</h2>
+            
+            {% if low_performers %}
+            <div class="performers-grid">
+                {% for student in low_performers %}
+                <div class="performer-card">
+                    <div class="performer-header">
+                        <div class="performer-id">Student #{{ student.index }}</div>
+                        <span class="risk-badge">{{ student.risk }}</span>
+                    </div>
+
+                    <div class="performer-stats">
+                        <div class="stat-item">
+                            <div class="stat-item-label">Attendance</div>
+                            <div class="stat-item-value">{{ student.attendance }}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-label">Assignment</div>
+                            <div class="stat-item-value">{{ student.assignment }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-label">Study Hours</div>
+                            <div class="stat-item-value">{{ student.study_hours }}h</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-label">Mid Marks</div>
+                            <div class="stat-item-value">{{ student.mid_marks }}</div>
+                        </div>
+                    </div>
+
+                    <div class="performer-probability">
+                        <div class="prob-label">Probability of Passing</div>
+                        <div class="prob-value">{{ student.probability }}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" data-probability="{{ student.probability }}"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🎉</div>
+                <p>No high-risk students found! All students are performing well.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set progress bar widths
+            const progressFills = document.querySelectorAll('.progress-fill');
+            progressFills.forEach(fill => {
+                const probability = fill.getAttribute('data-probability');
+                fill.style.width = probability + '%';
+            });
+
+            // Risk Distribution Pie Chart
+            const riskCtx = document.getElementById('riskChart');
+            if (riskCtx) {
+                const riskData = JSON.parse('{{ risk_chart|tojson|safe }}');
+                
+                new Chart(riskCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: riskData.labels,
+                        datasets: [{
+                            data: riskData.data,
+                            backgroundColor: riskData.backgroundColor,
+                            borderColor: 'white',
+                            borderWidth: 3,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 13, weight: 'bold' },
+                                    padding: 20,
+                                    color: '#667eea'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Pass/Fail Bar Chart
+            const passFailCtx = document.getElementById('passFailChart');
+            if (passFailCtx) {
+                const passFailData = JSON.parse('{{ pass_fail_chart|tojson|safe }}');
+                
+                new Chart(passFailCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: passFailData.labels,
+                        datasets: [{
+                            label: 'Number of Students',
+                            data: passFailData.data,
+                            backgroundColor: passFailData.backgroundColor,
+                            borderColor: ['#5b6dcc', '#6d3fa0'],
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    color: '#666'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#666'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    font: { size: 13, weight: 'bold' },
+                                    padding: 20,
+                                    color: '#667eea'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Attendance Trend Line Chart
+            const attendanceCtx = document.getElementById('attendanceChart');
+            if (attendanceCtx) {
+                const attendanceData = JSON.parse('{{ attendance_trend|tojson|safe }}');
+                
+                new Chart(attendanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: attendanceData.labels,
+                        datasets: [{
+                            label: 'Number of Students',
+                            data: attendanceData.data,
+                            borderColor: attendanceData.borderColor,
+                            backgroundColor: attendanceData.backgroundColor,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: attendanceData.tension,
+                            pointBackgroundColor: '#667eea',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    color: '#666'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#666'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    font: { size: 13, weight: 'bold' },
+                                    padding: 20,
+                                    color: '#667eea'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Confusion Matrix Bar Chart
+            const confusionCtx = document.getElementById('confusionMatrixChart');
+            if (confusionCtx) {
+                const confusionData = JSON.parse('{{ confusion_matrix|tojson|safe }}');
+                
+                new Chart(confusionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: confusionData.labels,
+                        datasets: [{
+                            label: 'Count',
+                            data: confusionData.data,
+                            backgroundColor: confusionData.backgroundColor,
+                            borderColor: ['#059669', '#dc2626', '#d97706', '#2563eb'],
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    color: '#666'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#666'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    font: { size: 13, weight: 'bold' },
+                                    padding: 20,
+                                    color: '#667eea'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

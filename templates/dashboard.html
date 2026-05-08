@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .card-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .card-link:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ee5a6f 0%, #f45c43 100%);
+        }
+
+        .logout-btn:hover {
+            box-shadow: 0 10px 20px rgba(238, 90, 111, 0.3);
+        }
+
+        .stats {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.6s ease-out 0.4s backwards;
+        }
+
+        .stats h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: inline-block;
+            margin-right: 30px;
+            margin-top: 10px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .welcome-msg {
+            color: white;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <h1>📊 Student Analytics Dashboard</h1>
+            <p class="welcome-msg">Welcome back! Manage and analyze student performance data</p>
+            <div class="nav-links">
+                <a href='/add_student' class="card-link">➕ Add Student</a>
+                <a href='/view_students' class="card-link">📋 View Students</a>
+                <a href='/search_students' class="card-link">🔍 Search Students</a>
+                <a href='/logout' class="card-link logout-btn">🚪 Logout</a>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-icon">📝</div>
+                <h3>Add Student Data</h3>
+                <p>Enter student information and academic metrics to make performance predictions.</p>
+                <a href='/add_student' class="card-link">Get Started →</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">👥</div>
+                <h3>View All Records</h3>
+                <p>Browse and review all student records and their risk assessments.</p>
+                <a href='/view_students' class="card-link">View Records →</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🔍</div>
+                <h3>Search & Filter</h3>
+                <p>Find students by marks and get personalized recommendations for improvement.</p>
+                <a href='/search_students' class="card-link">Search Now →</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h3>CSV Analytics</h3>
+                <p>Analyze bulk student data from CSV with attractive charts and statistics.</p>
+                <a href='/analytics' class="card-link">Analyze →</a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>Quick Stats</h2>
+            <div class="stat-item">
+                <div class="stat-number">📈</div>
+                <div class="stat-label">Performance Analysis</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">🎯</div>
+                <div class="stat-label">Risk Assessment</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">💡</div>
+                <div class="stat-label">Predictions</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

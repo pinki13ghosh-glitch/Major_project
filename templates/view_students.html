@@ -312,10 +312,10 @@
 
     <script>
         // Calculate statistics
-        const data = {{ data|tojson }};
+        const studentData = {{ data|tojson }};
         let lowRiskCount = 0, highRiskCount = 0;
         
-        data.forEach(row => {
+        studentData.forEach(row => {
             if (row[8] === 'Low Risk') lowRiskCount++;
             else if (row[8] === 'High Risk') highRiskCount++;
         });

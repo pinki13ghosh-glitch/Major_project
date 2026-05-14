@@ -42,6 +42,8 @@ df = pd.DataFrame(data, columns=[
     "Final_Result"
 ])
 
+df["Fees_Status"] = "Not Paid"
+
 df.to_csv("student_data.csv", index=False)
 
 print("Realistic dataset created successfully!")

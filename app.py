@@ -44,41 +44,62 @@ def get_active_model():
 # 2. Select "Mail" and "Windows Computer" (or your device)
 # 3. Copy the app password and paste below
 EMAIL_CONFIG = {
-    'sender_email': 'yourgmail@gmail.com',  # Your Gmail address
-    'app_password': 'your_app_password',     # 16-character app password from Google
-    'enabled': False  # Set to True once credentials are configured
+    'sender_email': 'majorpsi404@gmail.com',  # Your Gmail address
+    'app_password': 'hkayejgdbmfbuslk',     # 16-character app password from Google
+    'enabled': True  # Set to True once credentials are configured
 }
 
-WARNING_SUBJECT = """Dear Student,
+WARNING_SUBJECT = "⚠️ Official Academic Warning Notice"
+
+WARNING_BODY = """
+Dear Student,
 
 This is to inform you that your current academic performance and attendance record have fallen below the required standards set by ABC College.
 
 Our records indicate the following concerns:
 
-* **Low Academic Performance**: Your recent examination scores are significantly below the passing criteria.
-* **Low Attendance**: Your attendance percentage is below the minimum requirement mandated by the institution.
-* **High Risk of Failure**: Based on your current progress, you are at a high risk of not successfully passing the semester.
+• Low Academic Performance
+• Low Attendance
+• High Risk of Failure
 
-This serves as an **official warning**. You are strongly advised to take immediate corrective actions:
+This serves as an official warning. You are strongly advised to:
 
-* Attend all upcoming classes regularly
-* Focus on improving your academic performance
-* Seek guidance from your faculty members
-* Participate in remedial or extra classes if available
+• Attend all upcoming classes regularly
+• Improve your academic performance
+• Meet faculty members for guidance
+• Attend remedial classes if available
 
-Failure to show improvement may result in further disciplinary action as per college regulations.
+Failure to improve may result in further disciplinary action.
 
-We encourage you to treat this matter with utmost seriousness and take the necessary steps to improve your performance.
-
-Wishing you the best for your academic progress.
+Wishing you success in your academic progress.
 
 Sincerely,
-**Principal**
+Principal
 ABC College
 """
 
-WARNING_BODY = WARNING_SUBJECT
-# ============================================
+FEE_REMINDER_SUBJECT = "⚠️ College Fee Payment Reminder"
+
+FEE_REMINDER_BODY = """
+Dear Student,
+
+This is to inform you that your **college fees are still pending** as per our records.
+
+📌 **Status:** Not Paid
+📌 **Action Required:** Please clear your dues at the earliest to avoid academic restrictions.
+
+Failure to pay the fees may result in:
+
+* Restriction from examinations
+* Withholding of results
+* Suspension from classes
+
+If you have already made the payment, please ignore this message or contact the accounts department.
+
+Regards,
+**ABC College**
+Accounts Department
+"""
 
 def init_db():
     conn = sqlite3.connect("database.db")
@@ -187,18 +208,91 @@ Student Analytics System"""
         return False
 
 
-def send_warning_email(recipient_email):
-    """Send the official warning email to a high-risk student."""
+def send_warning_email(student):
+    """Send personalized score email to student"""
+
     if not EMAIL_CONFIG['enabled']:
-        print(f"Email notifications disabled. Would send warning to: {recipient_email}")
+        print(f"Email disabled for {student['email']}")
         return True
 
     try:
         sender_email = EMAIL_CONFIG['sender_email']
         app_password = EMAIL_CONFIG['app_password']
 
-        msg = MIMEText(WARNING_BODY)
-        msg["Subject"] = WARNING_SUBJECT
+        recipient_email = student['email']
+
+        subject = "📊 Student Performance Report"
+
+        body = f"""
+Dear Student,
+
+Here is your academic performance report.
+
+━━━━━━━━━━━━━━━━━━━━━━
+📚 PERFORMANCE DETAILS
+━━━━━━━━━━━━━━━━━━━━━━
+
+Attendance      : {student['attendance']}%
+Assignment Avg  : {student['assignment']}
+Study Hours     : {student['study_hours']}
+Mid Marks       : {student['mid_marks']}
+
+━━━━━━━━━━━━━━━━━━━━━━
+📈 PREDICTION RESULT
+━━━━━━━━━━━━━━━━━━━━━━
+
+Probability Score : {student['probability']}%
+Risk Level        : {student['risk']}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+Please work hard and improve your performance.
+
+Best Regards,
+ABC College
+"""
+
+        msg = MIMEText(body)
+
+        msg["Subject"] = subject
+        msg["From"] = sender_email
+        msg["To"] = recipient_email
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+
+        server.login(sender_email, app_password)
+
+        server.sendmail(
+            sender_email,
+            recipient_email,
+            msg.as_string()
+        )
+
+        server.quit()
+
+        print(f"✓ Email sent to {recipient_email}")
+
+        return True
+
+    except Exception as e:
+        print("EMAIL ERROR:", e)
+        return False
+
+
+def send_fee_reminder_email(student):
+    """Send fee reminder email to student."""
+    if not EMAIL_CONFIG['enabled']:
+        print(f"Email notifications disabled. Would send to: {student['email']}")
+        return True
+
+    try:
+        sender_email = EMAIL_CONFIG['sender_email']
+        app_password = EMAIL_CONFIG['app_password']
+        recipient_email = student['email']
+
+        msg = MIMEText(FEE_REMINDER_BODY)
+        msg["Subject"] = FEE_REMINDER_SUBJECT
         msg["From"] = sender_email
         msg["To"] = recipient_email
 
@@ -208,13 +302,14 @@ def send_warning_email(recipient_email):
         server.sendmail(sender_email, recipient_email, msg.as_string())
         server.quit()
 
-        print(f"✓ Warning email successfully sent to: {recipient_email}")
+        print(f"✓ Fee reminder sent to {recipient_email}")
         return True
+
     except Exception as e:
-        print(f"✗ Error sending warning email to {recipient_email}: {str(e)}")
+        print(f"✗ Error sending fee reminder to {student['email']}: {e}")
         return False
-
-
+    
+ 
 def get_high_risk_recipients_from_csv():
     """Return a list of high-risk recipient records from the CSV file."""
     try:
@@ -244,9 +339,15 @@ def get_high_risk_recipients_from_csv():
 
         if probability < 0.50:
             recipients.append({
-                "email": str(row[email_col]).strip(),
-                "risk": "High Risk",
-                "roll_number": idx + 1
+               "email": str(row[email_col]).strip(),
+               "risk": "High Risk",
+               "roll_number": idx + 1,
+               "attendance": row["Attendance"],
+               "assignment": row["Assignment_Avg"],
+               "study_hours": row["Study_Hours"],
+               "mid_marks": row["Mid_Marks"],
+               "probability": round(probability * 100, 2)
+
             })
 
     return recipients
@@ -322,6 +423,59 @@ def student_login():
     if "Name" in row.index:
         student_detail["name"] = row["Name"]
 
+    study_score = min(100, round(student_detail["study_hours"] * 16.6667, 2))
+    probability_component = min(100, round(probability_val, 2))
+    ca3_total = round(
+        student_detail["attendance"] +
+        student_detail["assignment"] +
+        student_detail["mid_marks"] +
+        study_score +
+        probability_component,
+        2
+    )
+
+    warnings = []
+    if student_detail["attendance"] < 60:
+        warnings.append({
+            "title": "Attendance Alert",
+            "message": "Attendance is below 60%. Regular classroom presence is essential.",
+            "current": f"{student_detail['attendance']}%",
+            "target": "≥ 60%"
+        })
+    if student_detail["assignment"] < 60:
+        warnings.append({
+            "title": "Assignment Warning",
+            "message": "Assignment scores are low. Improve task completion and accuracy.",
+            "current": f"{student_detail['assignment']}/100",
+            "target": "≥ 60/100"
+        })
+    if student_detail["study_hours"] < 2:
+        warnings.append({
+            "title": "Low Study Time",
+            "message": "Weekly study time is low. Increase study hours for better exam readiness.",
+            "current": f"{student_detail['study_hours']}h/week",
+            "target": "≥ 2h/week"
+        })
+    if student_detail["mid_marks"] < 50:
+        warnings.append({
+            "title": "Mid-term Marks Warning",
+            "message": "Mid-term marks are below expectation. Focus on weak subjects.",
+            "current": f"{student_detail['mid_marks']}/100",
+            "target": "≥ 50/100"
+        })
+    if probability_val < 50:
+        warnings.append({
+            "title": "Risk Alert",
+            "message": "Overall predicted pass probability is low. Seek tutoring and revision support.",
+            "current": f"{round(probability_val, 2)}%",
+            "target": "≥ 50%"
+        })
+
+    student_detail["study_score"] = study_score
+    student_detail["ca3_total"] = ca3_total
+    student_detail["ca3_max"] = 500
+    student_detail["warnings"] = warnings
+
     return render_template("student_view.html", student=student_detail)
 
 @app.route("/dashboard")
@@ -380,6 +534,35 @@ def add_student():
                 'mid_marks': mid_marks
             }
             send_email(parent_email, risk, round(probability*100,2), student_info)
+
+        try:
+            df = pd.read_csv("student_data.csv")
+        except Exception as e:
+            print(f"Error reading student_data.csv: {e}")
+            df = pd.DataFrame(columns=["Attendance", "Assignment_Avg", "Study_Hours", "Mid_Marks", "Final_Result", "email", "Fees_Status"])
+
+        if "Fees_Status" not in df.columns:
+            df["Fees_Status"] = "Not Paid"
+        if "email" not in df.columns:
+            df["email"] = ""
+        if "Final_Result" not in df.columns:
+            df["Final_Result"] = 0
+
+        new_student_row = {
+            "Attendance": attendance,
+            "Assignment_Avg": assignment,
+            "Study_Hours": study_hours,
+            "Mid_Marks": mid_marks,
+            "Final_Result": 1 if result == "PASS" else 0,
+            "email": parent_email,
+            "Fees_Status": "Not Paid"
+        }
+
+        try:
+            df = pd.concat([df, pd.DataFrame([new_student_row])], ignore_index=True)
+            df.to_csv("student_data.csv", index=False)
+        except Exception as e:
+            print(f"Error writing student_data.csv: {e}")
 
         conn = sqlite3.connect("database.db")
         c = conn.cursor()
@@ -559,52 +742,116 @@ def analytics():
 
 @app.route("/send_alerts", methods=["GET", "POST"])
 def send_alerts():
-    """Send email alerts to parents of high-risk students"""
+
     if "user" not in session:
         return redirect("/")
-    
+
+    results = {
+        'sent': 0,
+        'failed': 0,
+        'disabled':0,
+        'messages': []
+    }
+
+    # Get all high-risk students from CSV
+    high_risk_students = get_high_risk_recipients_from_csv()
+
+    if not high_risk_students:
+        results['messages'].append("No high-risk students found.")
+        return render_template("email_status.html", results=results)
+
+    # Send emails automatically
+    for student in high_risk_students:
+
+        recipient = student["email"]
+
+        success = send_warning_email(student)
+
+        if success:
+            results['sent'] += 1
+            results['messages'].append(f"✓ Email sent to {recipient}")
+        else:
+            results['failed'] += 1
+            results['messages'].append(f"✗ Failed to send email to {recipient}")
+
+    return render_template("email_status.html", results=results)
+
+@app.route("/fees_info", methods=["GET", "POST"])
+def fees_info():
+    if "user" not in session:
+        return redirect("/")
+
+    try:
+        df = pd.read_csv("student_data.csv")
+    except Exception as e:
+        print(f"Error reading student_data.csv: {e}")
+        return redirect("/dashboard")
+
+    if "Fees_Status" not in df.columns:
+        df["Fees_Status"] = "Not Paid"
+
     if request.method == "POST":
-        email_recipients = request.form.getlist("email_recipients")
-        
-        results = {
-            'sent': 0,
-            'failed': 0,
-            'disabled': 0,
-            'messages': []
-        }
-        
-        if not email_recipients:
-            results['messages'].append("No recipients selected.")
+        action = request.form.get("action", "save_status")
+        if action == "save_status":
+            for idx, row in df.iterrows():
+                roll_key = f"status_{idx + 1}"
+                status = request.form.get(roll_key, "Not Paid")
+                df.at[idx, "Fees_Status"] = status
+            try:
+                df.to_csv("student_data.csv", index=False)
+                message = "Fee status updated successfully."
+            except Exception as e:
+                print(f"Error writing student_data.csv: {e}")
+                message = "Unable to update fee status."
+
+            students = [
+                {
+                    'roll_number': idx + 1,
+                    'email': row.get('email', ''),
+                    'fees_status': str(df.at[idx, 'Fees_Status'])
+                }
+                for idx, row in df.iterrows()
+            ]
+
+            return render_template("fees_info.html", students=students, message=message)
+
+        if action == "send_reminders":
+            unpaid_students = []
+            for idx, row in df.iterrows():
+                status = str(row.get('Fees_Status', 'Not Paid')).strip().lower()
+                email = str(row.get('email', '')).strip()
+                if status != "paid" and email:
+                    unpaid_students.append({
+                        'roll_number': idx + 1,
+                        'email': email
+                    })
+
+            results = {'sent': 0, 'failed': 0, 'disabled': 0, 'messages': []}
+            if not unpaid_students:
+                results['messages'].append("No unpaid student emails to send.")
+                return render_template("email_status.html", results=results)
+
+            for student in unpaid_students:
+                success = send_fee_reminder_email(student)
+                if success:
+                    results['sent'] += 1
+                    results['messages'].append(f"✓ Email sent to {student['email']}")
+                else:
+                    results['failed'] += 1
+                    results['messages'].append(f"✗ Failed to send email to {student['email']}")
+
             return render_template("email_status.html", results=results)
 
-        if not EMAIL_CONFIG['enabled']:
-            results['disabled'] = len(email_recipients)
-            results['messages'].append("Email feature is disabled. Configure credentials to enable.")
-            return render_template("email_status.html", results=results)
-        
-        for recipient in email_recipients:
-            success = send_warning_email(recipient)
-            if success:
-                results['sent'] += 1
-                results['messages'].append(f"✓ Warning email sent to {recipient}")
-            else:
-                results['failed'] += 1
-                results['messages'].append(f"✗ Failed to send warning email to {recipient}")
-        
-        return render_template("email_status.html", results=results)
-    
-    csv_recipients = get_high_risk_recipients_from_csv()
-    if csv_recipients:
-        high_risk_students = csv_recipients
-    else:
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("SELECT parent_email, risk FROM students WHERE risk = 'High Risk'")
-        db_rows = c.fetchall()
-        conn.close()
-        high_risk_students = [{"email": row[0], "risk": row[1]} for row in db_rows]
-    
-    return render_template("send_alerts.html", high_risk_students=high_risk_students, EMAIL_CONFIG=EMAIL_CONFIG)
+    students = [
+        {
+            'roll_number': idx + 1,
+            'email': row.get('email', ''),
+            'fees_status': str(row.get('Fees_Status', 'Not Paid'))
+        }
+        for idx, row in df.iterrows()
+    ]
+
+    return render_template("fees_info.html", students=students)
 
 @app.route("/search_students", methods=["GET", "POST"])
 def search_students():

@@ -19,12 +19,15 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x:hidden;
+            margin: 0;
+            padding-top:40px;
         }
 
         body::before {
             content: '';
-            position: absolute;
+            position: fixed;
             width: 400px;
             height: 400px;
             background: rgba(255, 255, 255, 0.1);
@@ -36,7 +39,7 @@
 
         body::after {
             content: '';
-            position: absolute;
+            position: fixed;
             width: 300px;
             height: 300px;
             background: rgba(255, 255, 255, 0.08);
@@ -57,6 +60,7 @@
             padding: 20px;
             position: relative;
             z-index: 10;
+            margin-top:20px;
         }
 
         .login-box {

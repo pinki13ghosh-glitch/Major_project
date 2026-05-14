@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fees Info - Student Analytics</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 30px;
+            color: #1f2937;
+        }
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #1d4ed8;
+        }
+        .header p {
+            color: #475569;
+            max-width: 680px;
+            line-height: 1.7;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 22px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            font-weight: 700;
+            color: white;
+        }
+        .button.primary {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        }
+        .button.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 14px;
+            border: 1px solid #34d399;
+        }
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+        th, td {
+            padding: 16px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        th {
+            background: #f8fafc;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        td {
+            color: #334155;
+            font-size: 15px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+            cursor: pointer;
+        }
+        input[type="radio"] {
+            accent-color: #2563eb;
+        }
+        .note {
+            margin-top: 18px;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div>
+                <h1>Fees Info</h1>
+                <p>Manage fee payment status for multiple students and send automatic reminders to unpaid students.</p>
+            </div>
+            <a href="/dashboard" class="button primary">← Back to Dashboard</a>
+        </div>
+
+        <div class="card">
+            {% if message %}
+            <div class="message">{{ message }}</div>
+            {% endif %}
+
+            <form method="post" action="/fees_info">
+                <input type="hidden" name="action" value="save_status">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Email</th>
+                                <th>Fee Status</th>
+                                <th>Update Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.roll_number }}</td>
+                                <td>{{ student.email or 'N/A' }}</td>
+                                <td>{{ student.fees_status }}</td>
+                                <td>
+                                    <div class="radio-group">
+                                        <label>
+                                            <input type="radio" name="status_{{ student.roll_number }}" value="Paid" {% if student.fees_status|lower == 'paid' %}checked{% endif %}>
+                                            Paid
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="status_{{ student.roll_number }}" value="Not Paid" {% if student.fees_status|lower != 'paid' %}checked{% endif %}>
+                                            Not Paid
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="actions" style="margin-top: 24px;">
+                    <button type="submit" class="button primary">Save Fee Status</button>
+                </div>
+            </form>
+
+            <div class="note">
+                Tip: Use the status controls to mark several roll numbers as Paid or Not Paid, then click Save Fee Status to persist the update in the CSV file.
+            </div>
+
+            <form method="post" action="/fees_info" style="margin-top: 18px;">
+                <input type="hidden" name="action" value="send_reminders">
+                <button type="submit" class="button danger">📧 Send Reminder Emails to Unpaid Students</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

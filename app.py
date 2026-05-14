@@ -962,6 +962,106 @@ def search_students():
                          search_query=search_query,
                          filter_type=filter_type)
 
+@app.route("/update_marks", methods=["GET", "POST"])
+def update_marks():
+    if "user" not in session:
+        return redirect("/")
+
+    message = ""
+    error = False
+
+    if request.method == "POST":
+        roll_number = request.form.get("roll_number", "").strip()
+        if not roll_number.isdigit():
+            message = "Please enter a valid numeric Roll Number."
+            error = True
+        else:
+            roll_number = int(roll_number)
+            try:
+                df = pd.read_csv("student_data.csv")
+            except Exception as e:
+                message = f"Error reading student_data.csv: {e}"
+                error = True
+                return render_template("update_marks.html", message=message, error=error)
+
+            # Find student by roll number
+            student_row = None
+            student_idx = None
+            if "Roll_Number" in df.columns:
+                matching_rows = df[df["Roll_Number"] == roll_number]
+                if not matching_rows.empty:
+                    student_row = matching_rows.iloc[0]
+                    student_idx = matching_rows.index[0]
+            else:
+                if roll_number >= 1 and roll_number <= len(df):
+                    student_idx = roll_number - 1
+                    student_row = df.iloc[student_idx]
+
+            if student_row is None:
+                message = "Roll Number not found. Please verify and try again."
+                error = True
+            else:
+                # Ensure new columns exist
+                new_columns = [
+                    "Artificial_Intelligence", "Machine_Learning", "Python_Programming",
+                    "Data_Warehousing_and_Data_Mining", "DBMS", "Total_CA3",
+                    "Assessment_Rubric", "Strengths", "Areas_for_Improvement", "Suggested_Corrective_Measures"
+                ]
+                for col in new_columns:
+                    if col not in df.columns:
+                        df[col] = ""
+
+                # Get marks
+                ai = request.form.get("ai", "").strip()
+                ml = request.form.get("ml", "").strip()
+                python = request.form.get("python", "").strip()
+                dw = request.form.get("dw", "").strip()
+                dbms = request.form.get("dbms", "").strip()
+
+                marks = [ai, ml, python, dw, dbms]
+                if not all(m for m in marks):
+                    message = "Please enter valid numeric marks for all subjects."
+                    error = True
+                else:
+                    try:
+                        ai_val = float(ai)
+                        ml_val = float(ml)
+                        python_val = float(python)
+                        dw_val = float(dw)
+                        dbms_val = float(dbms)
+                    except ValueError:
+                        message = "Please enter valid numeric marks for all subjects."
+                        error = True
+                    else:
+                        total_ca3 = ai_val + ml_val + python_val + dw_val + dbms_val
+
+                        rubric = request.form.get("rubric", "").strip()
+                        strengths = request.form.get("strengths", "").strip()
+                        areas = request.form.get("areas", "").strip()
+                        measures = request.form.get("measures", "").strip()
+
+                        # Update the row
+                        df.at[student_idx, "Artificial_Intelligence"] = ai_val
+                        df.at[student_idx, "Machine_Learning"] = ml_val
+                        df.at[student_idx, "Python_Programming"] = python_val
+                        df.at[student_idx, "Data_Warehousing_and_Data_Mining"] = dw_val
+                        df.at[student_idx, "DBMS"] = dbms_val
+                        df.at[student_idx, "Total_CA3"] = total_ca3
+                        df.at[student_idx, "Assessment_Rubric"] = rubric
+                        df.at[student_idx, "Strengths"] = strengths
+                        df.at[student_idx, "Areas_for_Improvement"] = areas
+                        df.at[student_idx, "Suggested_Corrective_Measures"] = measures
+
+                        try:
+                            df.to_csv("student_data.csv", index=False)
+                            message = f"Marks updated successfully for Roll Number {roll_number}. Total CA3: {total_ca3}"
+                            error = False
+                        except Exception as e:
+                            message = f"Error saving data: {e}"
+                            error = True
+
+    return render_template("update_marks.html", message=message, error=error)
+
 @app.route("/logout")
 def logout():
     session.pop("user", None)

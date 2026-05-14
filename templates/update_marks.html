@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Marks - Student Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        body::before {
+            top: -200px;
+            left: -200px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        body::after {
+            bottom: -200px;
+            right: -200px;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(30px) rotate(10deg); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        header h1 {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+
+        .form-box {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        form {
+            display: grid;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.15s; }
+        .form-group:nth-child(3) { animation-delay: 0.2s; }
+        .form-group:nth-child(4) { animation-delay: 0.25s; }
+        .form-group:nth-child(5) { animation-delay: 0.3s; }
+        .form-group:nth-child(6) { animation-delay: 0.35s; }
+        .form-group:nth-child(7) { animation-delay: 0.4s; }
+        .form-group:nth-child(8) { animation-delay: 0.45s; }
+        .form-group:nth-child(9) { animation-delay: 0.5s; }
+        .form-group:nth-child(10) { animation-delay: 0.55s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f8f9ff;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .message {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin-top: 30px;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href='/dashboard' class="back-link">← Back to Dashboard</a>
+
+        <header>
+            <h1>📝 Update Student Marks</h1>
+            <p>Enter CA3 marks and evaluation details for a student</p>
+        </header>
+
+        <div class="form-box">
+            <h2>Marks Update Form</h2>
+            <form method='post'>
+                <div class="form-group">
+                    <label for="roll_number">🎓 Roll Number</label>
+                    <input type='number' id='roll_number' name='roll_number' placeholder='e.g., 1' min='1' required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ai">🤖 Artificial Intelligence</label>
+                    <input type='number' id='ai' name='ai' placeholder='e.g., 85' min='0' max='100' step='0.1' required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ml">🧠 Machine Learning</label>
+                    <input type='number' id='ml' name='ml' placeholder='e.g., 90' min='0' max='100' step='0.1' required>
+                </div>
+
+                <div class="form-group">
+                    <label for="python">🐍 Python Programming</label>
+                    <input type='number' id='python' name='python' placeholder='e.g., 88' min='0' max='100' step='0.1' required>
+                </div>
+
+                <div class="form-group">
+                    <label for="dw">💾 Data Warehousing and Data Mining</label>
+                    <input type='number' id='dw' name='dw' placeholder='e.g., 82' min='0' max='100' step='0.1' required>
+                </div>
+
+                <div class="form-group">
+                    <label for="dbms">🗄️ DBMS</label>
+                    <input type='number' id='dbms' name='dbms' placeholder='e.g., 87' min='0' max='100' step='0.1' required>
+                </div>
+
+                <div class="form-group">
+                    <label for="rubric">📋 Assessment Rubric</label>
+                    <select id='rubric' name='rubric'>
+                        <option value="">Select Rubric</option>
+                        <option value="A1">A1</option>
+                        <option value="A2">A2</option>
+                        <option value="A3">A3</option>
+                        <option value="A4">A4</option>
+                        <option value="B1">B1</option>
+                        <option value="B2">B2</option>
+                        <option value="B3">B3</option>
+                        <option value="B4">B4</option>
+                        <option value="C1">C1</option>
+                        <option value="C2">C2</option>
+                        <option value="C3">C3</option>
+                        <option value="C4">C4</option>
+                        <option value="D1">D1</option>
+                        <option value="D2">D2</option>
+                        <option value="D3">D3</option>
+                        <option value="D4">D4</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="strengths">💪 Strengths</label>
+                    <textarea id='strengths' name='strengths' placeholder='Enter student strengths...'></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="areas">⚠️ Areas for Improvement</label>
+                    <textarea id='areas' name='areas' placeholder='Enter areas for improvement...'></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="measures">🔧 Suggested Corrective Measures</label>
+                    <textarea id='measures' name='measures' placeholder='Enter suggested measures...'></textarea>
+                </div>
+
+                <button type='submit'>🚀 Update Marks</button>
+            </form>
+
+            {% if message %}
+            <div class="message{% if error %} error{% endif %}">
+                {{ message }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
